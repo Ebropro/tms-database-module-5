@@ -33,6 +33,8 @@ public class TmsDbContext : DbContext
 
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(TmsDbContext).Assembly
+            
         );
+    
     }
 }

@@ -55,5 +55,52 @@ public async Task<IActionResult> GetTopCourses()
 
     return Ok(result);
 }
+// TEST THE INTENTIONAL bad N+1
+// [HttpGet("n-plus-one")]
+// public async Task<IActionResult> NPlusOne(
+//     CancellationToken cancellationToken)
+// {
+//     var students = await _context.Students
+//         .AsNoTracking()
+//         .ToListAsync(cancellationToken);
+
+//     foreach (var s in students)
+//     {
+//         var count = await _context.Enrollments
+//             .AsNoTracking()
+//             .CountAsync(
+//                 e => e.StudentId == s.Id,
+//                 cancellationToken);
+
+//         Console.WriteLine($"{s.Name}: {count}");
+//     }
+
+//     return Ok("Check logs");
+// }
+
+
+
+
+//=============================
+// session 3 - fixed the N+1
+[HttpGet("students-enrollment-count")]
+public async Task<IActionResult> GetStudentEnrollmentCount(CancellationToken cancellationToken)
+{
+    var result = await _context.Students
+        .AsNoTracking()
+        .GroupJoin(
+            _context.Enrollments,
+            s => s.Id,
+            e => e.StudentId,
+            (s, enrollments) => new
+            {
+                s.Name,
+                Count = enrollments.Count()
+            }
+        )
+        .ToListAsync(cancellationToken);
+
+    return Ok(result);
+}
 
 }

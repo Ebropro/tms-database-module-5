@@ -10,18 +10,60 @@ public class StudentConfiguration : IEntityTypeConfiguration<Student>
 
         builder.HasKey(s => s.Id);
 
-        builder.Property(s => s.Name)
-            .IsRequired()
-            .HasMaxLength(100);
+        builder.Property(s => s.Name).IsRequired().HasMaxLength(100);
+        builder.Property(s => s.RegistrationNumber).IsRequired().HasMaxLength(20);
+        builder.Property(s => s.GPA).HasPrecision(3, 2);
+        builder.Property(s => s.IsActive).IsRequired();
+        builder.Property(s => s.IsDeleted).IsRequired().HasDefaultValue(false);
 
-        builder.Property(s => s.RegistrationNumber)
-            .IsRequired()
-            .HasMaxLength(20);
+        // Shadow property (no CLR property on Student, but column exists in DB)
+        builder.Property<DateTime>("LastUpdated")
+            .HasColumnType("timestamp without time zone");
 
-        builder.Property(s => s.GPA)
-            .HasPrecision(3, 2);
+        // Concurrency token
+        builder.Property(s => s.Version)
+            .IsConcurrencyToken();
 
-        builder.Property(s => s.IsActive)
-            .IsRequired();
+        // EX-9: Task 1: Global query filter — soft-deleted are invisible to normal queries.
+        builder.HasQueryFilter(s => !s.IsDeleted);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+//     public void Configure(EntityTypeBuilder<Student> builder)
+//     {
+//         builder.ToTable("Students");
+
+//         builder.HasKey(s => s.Id);
+
+//         builder.Property(s => s.Name)
+//             .IsRequired()
+//             .HasMaxLength(100);
+
+//         builder.Property(s => s.RegistrationNumber)
+//             .IsRequired()
+//             .HasMaxLength(20);
+
+//         builder.Property(s => s.GPA)
+//             .HasPrecision(3, 2);
+
+//         builder.Property(s => s.IsActive)
+//             .IsRequired();
+//         // Add Shadow property EX-8
+//         builder.Property<DateTime>("LastUpdated")
+//     .HasColumnType("timestamp without time zone");
+//      // concurrency
+//       builder.Property(s => s.Version)
+//       .IsRowVersion();
+
+//     }
+// }
