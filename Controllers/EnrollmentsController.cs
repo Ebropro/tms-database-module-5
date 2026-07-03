@@ -1,5 +1,3 @@
-
-
 using TmsApi.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,49 +12,54 @@ public class EnrollmentsController : ControllerBase
         _enrollmentService = enrollmentService;
     }
 
-    // GET /api/enrollments
     [HttpGet]
     public async Task<IActionResult> GetAll()
-    {
-        var enrollments = await _enrollmentService.GetAllAsync();
-        return Ok(enrollments);
-    }
+        => Ok(await _enrollmentService.GetAllAsync());
 
-    // GET /api/enrollments/{id}
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
         var record = await _enrollmentService.GetByIdAsync(id);
-
-        return record is not null
-            ? Ok(record)
-            : NotFound();
+        return record is not null ? Ok(record) : NotFound();
     }
 
-[HttpPost]
-public async Task<IActionResult> Create([FromBody] CreateEnrollmentRequest request)
-{
-    var record = await _enrollmentService.EnrollAsync(
-        request.StudentId,
-        request.CourseCode);
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateEnrollmentRequest request)
+    {
+        var record = await _enrollmentService.EnrollAsync(
+            request.StudentId, request.CourseCode);
 
-    return CreatedAtAction(
-        nameof(GetById),
-        new { id = record.Id },
-        record);
-}
+        return CreatedAtAction(nameof(GetById), new { id = record.Id }, record);
+    }
 
-// DELETE /api/enrollments/{id}
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
-    {
-        var deleted = await _enrollmentService.DeleteAsync(id);
+        => await _enrollmentService.DeleteAsync(id) ? NoContent() : NotFound();
 
-        return deleted
-            ? NoContent()
-            : NotFound();
+    // =========================================================
+    // ✅ Task 2 — Bulk archive endpoint
+    //
+    // POST /api/enrollments/archive?cutoffYear=2023
+    //
+    // Internally calls ExecuteUpdateAsync → single SQL UPDATE:
+    // =========================================================
+    [HttpPost("archive")]
+    public async Task<IActionResult> ArchiveOld(
+        [FromQuery] int cutoffYear,
+        CancellationToken cancellationToken)
+    {
+        // Everything enrolled before Jan 1 of cutoffYear is archived
+        var cutoff = new DateTime(cutoffYear, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        var affected = await _enrollmentService.ArchiveOlderThanAsync(cutoff, cancellationToken);
+
+        return Ok(new
+        {
+            archivedCount = affected,
+            cutoff = cutoff.ToString("O"),
+            message = $"Issued a single UPDATE — {affected} enrollment(s) marked IsArchived = true."
+        });
     }
 }
-
 
 public record CreateEnrollmentRequest(int StudentId, int CourseCode);

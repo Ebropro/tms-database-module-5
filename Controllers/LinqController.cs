@@ -10,9 +10,9 @@ namespace TmsApi.Controllers;
 [Route("api/linq")]
 public class LinqController(TmsDbContext context) : ControllerBase
 {
-    // =========================================================
+    
     // 1. Active students with GPA >= 3.0
-    // =========================================================
+   
     [HttpGet("active-students-count")]
     public async Task<IActionResult> GetActiveStudentsCount()
     {
@@ -23,9 +23,9 @@ public class LinqController(TmsDbContext context) : ControllerBase
         return Ok(new { count });
     }
 
-    // =========================================================
+   
     // 2. Courses with most enrollments (descending)
-    // =========================================================
+   
     [HttpGet("course-enrollments")]
     public async Task<IActionResult> GetCourseEnrollments()
     {
@@ -41,9 +41,9 @@ public class LinqController(TmsDbContext context) : ControllerBase
         return Ok(result);
     }
 
-    // =========================================================
+    
     // 3. Average GPA per course
-    // =========================================================
+   
     [HttpGet("course-average-gpa")]
     public async Task<IActionResult> GetCourseAverageGpa()
     {
@@ -59,9 +59,9 @@ public class LinqController(TmsDbContext context) : ControllerBase
         return Ok(result);
     }
 
-    // =========================================================
+   
     // 4. Students with ZERO enrollments (Approach A)
-    // =========================================================
+   
     [HttpGet("students-without-enrollments")]
     public async Task<IActionResult> GetStudentsWithoutEnrollments()
     {
@@ -73,10 +73,10 @@ public class LinqController(TmsDbContext context) : ControllerBase
         return Ok(result);
     }
 
-    // =========================================================
+
     // 4B. Students with ZERO enrollments (LEFT JOIN version)
-    // (Optional advanced EF Core 10 pattern)
-    // =========================================================
+   
+   
     [HttpGet("students-without-enrollments-leftjoin")]
     public async Task<IActionResult> GetStudentsWithoutEnrollmentsLeftJoin()
     {
@@ -94,3 +94,4 @@ public class LinqController(TmsDbContext context) : ControllerBase
         return Ok(result);
     }
 }
+

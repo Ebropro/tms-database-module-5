@@ -10,3 +10,8 @@ public class Course
     public ICollection<Enrollment> Enrollments { get; set; } =
      new List<Enrollment>();
 }
+
+
+
+
+

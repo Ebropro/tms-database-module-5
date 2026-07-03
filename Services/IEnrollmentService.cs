@@ -1,7 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using TmsApi.Data;
 using TmsApi.Entities;
-using Microsoft.Extensions.Logging;
 
 public interface IEnrollmentService
 {
@@ -9,4 +6,7 @@ public interface IEnrollmentService
     Task<Enrollment?> GetByIdAsync(int id);
     Task<IReadOnlyList<Enrollment>> GetAllAsync();
     Task<bool> DeleteAsync(int id);
+
+    // ✅ Task 2: Bulk-archive enrollments older than cutoff — single SQL UPDATE
+    Task<int> ArchiveOlderThanAsync(DateTime cutoff, CancellationToken cancellationToken = default);
 }
